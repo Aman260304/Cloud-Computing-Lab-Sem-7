@@ -1,143 +1,156 @@
-Mininet Network Topology Experiments
+Mininet Network Topology Experiments (Experiment-3)
 
 👤 Author: Aman Srivastava 🎓 Bachelor of Technology (B.Tech) in Computer Science and Engineering 🏫 Adamas University
 
-This repository documents two basic Software-Defined Networking (SDN) lab experiments performed using Mininet, a network emulator that creates virtual hosts, switches, and links for testing and prototyping network topologies.
+📌 Objective
+To create and configure a simple network topology using an open-source network virtualization tool (Mininet) and verify communication between the virtual network nodes.
 
-🖥️ Environment
-OS: Ubuntu (VirtualBox VM — AmanCloud)
-Tool: Mininet 2.3.0
-Switch backend: Open vSwitch (OVS Bridge — used since no OpenFlow controller was specified)
-Interface: Mininet CLI
-📦 Installation
+📋 Task Overview
+Setup an Ubuntu Linux Virtual Machine (using VirtualBox).
 
-Mininet was installed via APT along with its dependencies (Open vSwitch, netifaces, sortedcontainers, etc.):
+Install Mininet.
+
+Create network topologies with two different types of node numbers.
+
+Inspect links and test connectivity using basic Linux networking commands (ping, pingall, ip addr).
+
+Stop and clean up the network after completion.
+
+🛠️ Environment Setup
+Prerequisites
+Ubuntu Linux (running in VirtualBox)
+
+Terminal access with sudo privileges
+
+Installation
+Mininet and its dependencies were installed using the following command:
 
 bash
 sudo apt install mininet -y
+Dependencies installed include: openvswitch-switch, python3-netifaces, socat, iperf, etc.
 
-Verify installation:
+🧪 Lab Experiments & Results
+The lab was conducted in two main phases:
+
+Built-in Topologies: Using Mininet's command-line arguments.
+
+Custom Python Topologies: Creating custom scripts for specific network structures.
+
+Part 1: Built-in Topologies (mn command)
+Experiment 1.1: Minimal Topology (2 Hosts)
+A simple topology with 1 switch and 2 hosts.
 
 bash
-mn --version
-# 2.3.0
-Topology 1 — Single Switch with 2 Hosts
+sudo mn --topo minimal
+Nodes: h1, h2, s1
 
-A minimal star topology with one switch (s1) connected to two hosts (h1, h2).
+Links: h1-eth0 <-> s1-eth1, h2-eth0 <-> s1-eth2
 
-Command
-bash
-sudo mn --topo single,2
-Topology Diagram
-        h1        h2
-         \        /
-          \      /
-           [ s1 ]
-Steps Performed
-Started Mininet with the single,2 topology (1 switch, 2 hosts).
-Verified nodes and links:
-   mininet> nodes
-   available nodes are:
-   h1 h2 s1
+Connectivity: pingall resulted in 0% dropped (2/2 received).
 
-   mininet> links
-   h1-eth0<->s1-eth1 (OK OK)
-   h2-eth0<->s1-eth2 (OK OK)
-Checked IP configuration on each host (h1 ip addr, h2 ip addr):
-Host	Interface	MAC Address	IP Address
-h1	h1-eth0	ea:9a:84:80:30:96	10.0.0.1/8
-h2	h2-eth0	42:be:d6:1f:16:3c	10.0.0.2/8
-Ran connectivity tests:
-   mininet> h1 ping -c 4 h2
-   4 packets transmitted, 4 received, 0% packet loss
-   rtt min/avg/max/mdev = 0.075/0.148/0.348/0.115 ms
+Experiment 1.2: Single Topology (4 Hosts)
+A topology with 1 switch and 4 hosts connected to it.
 
-   mininet> pingall
-   *** Results: 0% dropped (2/2 received)
-Result
-
-✅ Full connectivity confirmed between h1 and h2 through switch s1.
-
-Topology 2 — Single Switch with 4 Hosts
-
-Extends Topology 1 to a star topology with one switch (s1) and four hosts (h1–h4).
-
-Command
 bash
 sudo mn --topo single,4
-Topology Diagram
-   h1   h2   h3   h4
-     \   \   /   /
-      \   \ /   /
-        [ s1 ]
-Steps Performed
-Started Mininet with the single,4 topology (1 switch, 4 hosts).
-Verified nodes and links:
-   mininet> nodes
-   available nodes are:
-   h1 h2 h3 h4 s1
+Nodes: h1, h2, h3, h4, s1
 
-   mininet> links
-   h1-eth0<->s1-eth1 (OK OK)
-   h2-eth0<->s1-eth2 (OK OK)
-   h3-eth0<->s1-eth3 (OK OK)
-   h4-eth0<->s1-eth4 (OK OK)
-Checked IP configuration on each host:
-Host	Interface	MAC Address	IP Address
-h1	h1-eth0	d2:fc:e7:9f:24:52	10.0.0.1/8
-h2	h2-eth0	aa:39:f8:39:f5:14	10.0.0.2/8
-h3	h3-eth0	8e:0e:f0:aa:eb:cb	10.0.0.3/8
-h4	h4-eth0	ce:f1:89:34:da:ce	10.0.0.4/8
-Ran individual ping tests between host pairs (h1↔h2, h1↔h3, h2↔h4) — all successful with 0% packet loss.
-Ran full mesh connectivity test:
-   mininet> pingall
-   h1 -> h2 h3 h4
-   h2 -> h1 h3 h4
-   h3 -> h1 h2 h4
-   h4 -> h1 h2 h3
-   *** Results: 0% dropped (12/12 received)
-Inspected network and routing tables:
-   mininet> net
-   h1 h1-eth0:s1-eth1
-   h2 h2-eth0:s1-eth2
-   h3 h3-eth0:s1-eth3
-   h4 h4-eth0:s1-eth4
-   s1 lo:  s1-eth1:h1-eth0 s1-eth2:h2-eth0 s1-eth3:h3-eth0 s1-eth4:h4-eth0
+Links: All hosts connected to s1 (ports 1-4).
 
-   mininet> h1 route
-   Destination   Gateway   Genmask       Flags  Iface
-   10.0.0.0      0.0.0.0   255.0.0.0     U      h1-eth0
-Result
+Connectivity: pingall resulted in 0% dropped (12/12 received).
 
-✅ Full mesh connectivity confirmed across all 4 hosts (12/12 pings received, 0% packet loss).
+Experiment 1.3: Linear Topology (2 & 4 Switches)
+A chain of switches, each with a host attached.
+
+bash
+sudo mn --topo linear,2
+sudo mn --topo linear,4
+Linear 2: h1 - s1 - s2 - h2. Ping test: 0% dropped (2/2).
+
+Linear 4: h1 - s1 - s2 - s3 - s4 - h4 (with hosts on each switch). Ping test: 0% dropped (12/12).
+
+Experiment 1.4: Tree Topology (Depth 2 & 3)
+A hierarchical tree topology.
+
+bash
+sudo mn --topo tree,depth=2,fanout=2
+sudo mn --topo tree,depth=3,fanout=2
+Tree Depth 2: 3 switches, 4 hosts. Ping test: 0% dropped (12/12).
+
+Tree Depth 3: 7 switches, 8 hosts. Ping test: 0% dropped (56/56).
+
+Part 2: Custom Python Topologies
+Custom scripts were created using nano and executed with sudo python3 <filename>.py.
+
+Experiment 2.1: Reversed Topology
+A custom script (reversed_topology.py) was written to create a specific 2-switch, 2-host topology with non-standard connections.
+
+Code Snippet:
+
+python
+from mininet.topo import Topo
+from mininet.net import Mininet
+from mininet.cli import CLI
+from mininet.node import OVSController
+
+class ReversedTopo(Topo):
+    def build(self):
+        s1 = self.addSwitch('s1')
+        s2 = self.addSwitch('s2')
+        h1 = self.addHost('h1')
+        h2 = self.addHost('h2')
+        
+        # Custom Links
+        self.addLink(s1, s2)
+        self.addLink(s1, h2)
+        self.addLink(s2, h1)
+
+def run():
+    topo = ReversedTopo()
+    net = Mininet(topo=topo, controller=OVSController)
+    net.start()
+    CLI(net)
+    net.stop()
+
+if __name__ == '__main__':
+    run()
+Verification: links command confirmed the reversed connection (s1-eth2 <-> h2-eth0, s2-eth2 <-> h1-eth0).
+
+Connectivity: pingall resulted in 0% dropped.
+
+Experiment 2.2: Torus Topology (4x4 Grid)
+A script (torus_topology.py) was created to build a 4x4 torus network (16 switches, 16 hosts).
+
+Key Features:
+
+Iterates through a 4x4 grid of switches.
+
+Connects each switch to its right neighbor (wrapping around).
+
+Connects each switch to its down neighbor (wrapping around).
+
+Attaches one host to each switch.
+
+Note: The script enables Spanning Tree Protocol (STP) on all switches to prevent broadcast storms caused by loops in the torus topology.
+
+Execution & Results:
+
+Nodes: h0 through h15, s0 through s15.
+
+STP: Enabled successfully. The script waited 30 seconds for STP to converge before starting the network.
+
+Connectivity: pingall resulted in 0% dropped (240/240 received).
 
 🧹 Cleanup
-
-After each experiment, Mininet's internal state was cleared to avoid conflicts in subsequent runs:
+After each experiment, the network was stopped using exit in the Mininet CLI, followed by a cleanup command to remove any stale processes or virtual interfaces:
 
 bash
 sudo mn -c
+This ensures no residual OpenFlow controllers or OVS bridges interfere with subsequent experiments.
 
-This removes leftover controllers, switches, links, OVS datapaths, and stale network namespaces.
+📝 Conclusion
+The lab successfully demonstrated the creation and configuration of various network topologies (Minimal, Single, Linear, Tree, and custom Torus) using Mininet on an Ubuntu VM. Communication between nodes was verified using ping and pingall, confirming 0% packet loss across all tested topologies. The custom Torus topology required STP configuration to handle network loops correctly.
 
-📝 Useful Mininet CLI Commands Reference
-Command	Description
-nodes	List all nodes (hosts + switches) in the topology
-links	Show link status between nodes
-net	Display network connections
-<host> ip addr	Show IP/MAC configuration of a host
-<host> route	Show routing table of a host
-<h1> ping -c 4 <h2>	Ping between two specific hosts
-pingall	Test connectivity between all host pairs
-exit	Exit the Mininet CLI
-sudo mn -c	Clean up Mininet state
-📌 Notes
-Since no OpenFlow controller was specified, Mininet automatically fell back to using an OVS Bridge (standalone L2 learning switch mode).
-All hosts were assigned IPs from the 10.0.0.0/8 subnet automatically by Mininet.
-Both topologies achieved 0% packet loss, confirming correct switch forwarding behavior.
-📚 References
-Mininet Official Documentation
-Mininet Walkthrough
 👤 Author
 	
 Name	Aman Srivastava
